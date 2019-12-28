@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "243514280118",
+    "firebase_url": "https://bomchat-263422.firebaseio.com",
+    "project_id": "bomchat-263422",
+    "storage_bucket": "bomchat-263422.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:243514280118:android:2f672397b1e3510ff1fe17",
+        "android_client_info": {
+          "package_name": "com.ourdia.bomchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "243514280118-lhjo5vkddeb76qamehm39oqaj61ut15g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOuRjxDQinS2jns5V_mMryVm0GROJ5sTA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "243514280118-lhjo5vkddeb76qamehm39oqaj61ut15g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
