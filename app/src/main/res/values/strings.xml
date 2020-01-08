@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">BomChat</string>
+    <!--<string name="Facebbok_application_id" translatable="false">515412246000741</string> -->
+    <!--  <string name="Facebook_login_protocole_shema"  translatable="false" >fb515412246000741</string> -->
+
+      <string name="facebook_application_id" translatable="false">515412246000741</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb515412246000741</string>
 </resources>
+

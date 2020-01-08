@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "243514280118-ju4ghqo03pjeihjhnqpds175sii55ttl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ourdia.bomchat",
+            "certificate_hash": "3f746705ac271d952941c8caea0a8e9ab08c80f8"
+          }
+        },
+        {
           "client_id": "243514280118-lhjo5vkddeb76qamehm39oqaj61ut15g.apps.googleusercontent.com",
           "client_type": 3
         }
