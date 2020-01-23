@@ -3,11 +3,15 @@ package com.ourdia.bomchat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -15,6 +19,7 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -26,13 +31,60 @@ public class MainActivity extends AppCompatActivity {
     private static final  int  MY_Request_Code = 1212;
     List<AuthUI.IdpConfig> provider;
     Button btn_singn_out;
+    private BottomNavigationView mMainNav;
+    private FrameLayout mFrame;
+    private  HomeFragment homeFragment;
+    private  GroupFragment groupFragment;
+    private UserFragment userFragment;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         btn_singn_out = (Button)findViewById(R.id.btn_singn_out);
+        mFrame = (FrameLayout)findViewById (R.id.main_fram) ;
+        mMainNav = (BottomNavigationView)findViewById(R.id.main_nav);
+
+        homeFragment = new HomeFragment();
+        groupFragment = new GroupFragment();
+        userFragment = new UserFragment();
+
+        setFragment(homeFragment);
+
+        mMainNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+
+                    case R.id.nav_home:
+                        mMainNav.setItemBackgroundResource(R.color.colorPrimary);
+                        setFragment(homeFragment);
+                        return  true;
+
+                    case R.id.nav_notif:
+                        mMainNav.setItemBackgroundResource(R.color.colorAccent);
+                        setFragment(groupFragment);
+
+                        return  true;
+
+                    case R.id.nav_user :
+                        mMainNav.setItemBackgroundResource(R.color.colorWhite);
+                        setFragment(userFragment);
+
+                        return  true;
+
+                     default:
+                         return false;
+                }
+
+            }
+
+
+        });
+
+
 
         btn_singn_out.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,9 +110,9 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-                // init provider
+        // init provider
         provider = Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build(),// Email Builder
-      //  new AuthUI.IdpConfig.PhoneBuilder().build(),  // Phone Builder
+       //  new AuthUI.IdpConfig.PhoneBuilder().build(),  // Phone Builder
         new AuthUI.IdpConfig.FacebookBuilder().build(),  // facebook Builder
         new AuthUI.IdpConfig.GoogleBuilder().build()  // Google Builder
 
@@ -68,6 +120,13 @@ public class MainActivity extends AppCompatActivity {
         );
 
     showSignInOprion();
+
+    }
+
+    private void setFragment(Fragment  fragment) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.main_fram , fragment);
+        fragmentTransaction.commit();
 
     }
 
