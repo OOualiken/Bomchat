@@ -7,5 +7,8 @@
     <color name="colorWhite"> #F5A9F2 </color>
     <color name="colorBackground"> #1C1C1C </color>
     <color name="colorWhiteTransparent"> #9A2EFE</color>
+    <color name="colortext"> #4000FF</color>
+
+
 
 </resources>

@@ -1,164 +1,196 @@
 package com.ourdia.bomchat;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.ourdia.bomchat.Fragments.ChatsFragment;
+import com.ourdia.bomchat.Fragments.ProfileFragment;
+import com.ourdia.bomchat.Fragments.UsersFragment;
+import com.ourdia.bomchat.Model.Chat;
+import com.ourdia.bomchat.Model.User;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final  int  MY_Request_Code = 1212;
-    List<AuthUI.IdpConfig> provider;
-    Button btn_singn_out;
-    private BottomNavigationView mMainNav;
-    private FrameLayout mFrame;
-    private  HomeFragment homeFragment;
-    private  GroupFragment groupFragment;
-    private UserFragment userFragment;
+    CircleImageView profile_image;
+    TextView username;
 
-
+    FirebaseUser firebaseUser;
+    DatabaseReference reference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        btn_singn_out = (Button)findViewById(R.id.btn_singn_out);
-        mFrame = (FrameLayout)findViewById (R.id.main_fram) ;
-        mMainNav = (BottomNavigationView)findViewById(R.id.main_nav);
 
-        homeFragment = new HomeFragment();
-        groupFragment = new GroupFragment();
-        userFragment = new UserFragment();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
 
-        setFragment(homeFragment);
+        profile_image = findViewById(R.id.profile_image);
+        username = findViewById(R.id.username);
 
-        mMainNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId()){
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                username.setText(user.getUsername());
+                if (user.getImageURL().equals("default")){
+                    profile_image.setImageResource(R.mipmap.ic_launcher);
+                } else {
 
-                    case R.id.nav_home:
-                        mMainNav.setItemBackgroundResource(R.color.colorPrimary);
-                        setFragment(homeFragment);
-                        return  true;
+                    //change this
+                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image);
+                }
+            }
 
-                    case R.id.nav_notif:
-                        mMainNav.setItemBackgroundResource(R.color.colorAccent);
-                        setFragment(groupFragment);
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        return  true;
+            }
+        });
 
-                    case R.id.nav_user :
-                        mMainNav.setItemBackgroundResource(R.color.colorWhite);
-                        setFragment(userFragment);
+        final TabLayout tabLayout = findViewById(R.id.tab_layout);
+        final ViewPager viewPager = findViewById(R.id.view_pager);
 
-                        return  true;
 
-                     default:
-                         return false;
+        reference = FirebaseDatabase.getInstance().getReference("Chats");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+                int unread = 0;
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class);
+                    if (chat.getReceiver().equals(firebaseUser.getUid()) && !chat.isIsseen()){
+                        unread++;
+                    }
                 }
 
+                if (unread == 0){
+                    viewPagerAdapter.addFragment(new ChatsFragment(), "Chats");
+                } else {
+                    viewPagerAdapter.addFragment(new ChatsFragment(), "("+unread+") Chats");
+                }
+
+                viewPagerAdapter.addFragment(new UsersFragment(), "Users");
+                viewPagerAdapter.addFragment(new ProfileFragment(), "Profile");
+
+                viewPager.setAdapter(viewPagerAdapter);
+
+                tabLayout.setupWithViewPager(viewPager);
+
             }
 
-
-        });
-
-
-
-        btn_singn_out.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                //layout
-                AuthUI.getInstance().signOut(MainActivity.this)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        btn_singn_out.setEnabled(false);
-                        showSignInOprion();
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(MainActivity.this,""+e.getMessage(),Toast.LENGTH_LONG).show();
-
-
-                    }
-                });
             }
-
         });
 
-        // init provider
-        provider = Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build(),// Email Builder
-       //  new AuthUI.IdpConfig.PhoneBuilder().build(),  // Phone Builder
-        new AuthUI.IdpConfig.FacebookBuilder().build(),  // facebook Builder
-        new AuthUI.IdpConfig.GoogleBuilder().build()  // Google Builder
-
-
-        );
-
-    showSignInOprion();
-
-    }
-
-    private void setFragment(Fragment  fragment) {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.main_fram , fragment);
-        fragmentTransaction.commit();
-
-    }
-
-    private void showSignInOprion() {
-     startActivityForResult(
-             AuthUI.getInstance()
-             .createSignInIntentBuilder()
-             .setAvailableProviders(provider)
-             .setTheme(R.style.myTheme).build(),MY_Request_Code
-     );
 
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
 
-        if (requestCode== MY_Request_Code){
-            IdpResponse reponse  = IdpResponse.fromResultIntent(data);
-            // get user
-            if (resultCode == RESULT_OK){
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                // show email on Toast
-                Toast.makeText(this,""+user.getEmail(),Toast.LENGTH_LONG).show();
-                //sign out   button
-                btn_singn_out.setEnabled(true);
-            }else {
-                Toast.makeText(this,""+reponse.getError().getMessage() ,Toast.LENGTH_LONG).show();
-            }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
 
-
+            case  R.id.logout:
+                FirebaseAuth.getInstance().signOut();
+                // change this code beacuse your app will crash
+                startActivity(new Intent(MainActivity.this, StartActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                return true;
         }
 
+        return false;
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+
+        private ArrayList<Fragment> fragments;
+        private ArrayList<String> titles;
+
+        ViewPagerAdapter(FragmentManager fm){
+            super(fm);
+            this.fragments = new ArrayList<>();
+            this.titles = new ArrayList<>();
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return fragments.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return fragments.size();
+        }
+
+        public void addFragment(Fragment fragment, String title){
+            fragments.add(fragment);
+            titles.add(title);
+        }
+
+        // Ctrl + O
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return titles.get(position);
+        }
+    }
+
+    private void status(String status){
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("status", status);
+
+        reference.updateChildren(hashMap);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        status("online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        status("offline");
     }
 }
