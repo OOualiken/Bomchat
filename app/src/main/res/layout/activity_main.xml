@@ -41,9 +41,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorWhitee"
+            app:tabIndicatorColor="#8B44DF"
             app:tabSelectedTextColor="#109"
-            app:tabIndicatorColor="#199"
-            app:tabTextColor="#119"/>
+            app:tabTextColor="#119" />
 
     </android.support.design.widget.AppBarLayout>
 

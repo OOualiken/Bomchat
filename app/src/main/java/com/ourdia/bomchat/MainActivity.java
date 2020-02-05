@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             titles.add(title);
         }
 
-        // Ctrl + O
+
 
         @Nullable
         @Override
