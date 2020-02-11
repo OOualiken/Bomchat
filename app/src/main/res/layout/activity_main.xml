@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorWhiteTransparent"
+            android:background="@color/colorPrimaryDark"
             android:theme="@style/Base.ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/MenuStyle">
 
@@ -30,7 +30,7 @@
                 android:id="@+id/username"
                 android:textSize="18sp"
                 android:layout_marginLeft="25dp"
-                android:textColor="#119"
+                android:textColor="#fff"
                 android:textStyle="bold"
                 android:layout_marginStart="25dp" />
 
@@ -40,10 +40,10 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorWhitee"
-            app:tabIndicatorColor="#8B44DF"
-            app:tabSelectedTextColor="#109"
-            app:tabTextColor="#119" />
+            android:background="@color/colorPrimaryDark"
+            app:tabSelectedTextColor="#fff"
+            app:tabIndicatorColor="#fff"
+            app:tabTextColor="#fff"/>
 
     </android.support.design.widget.AppBarLayout>
 

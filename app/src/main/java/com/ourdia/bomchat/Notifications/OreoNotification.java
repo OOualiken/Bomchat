@@ -13,7 +13,7 @@ import android.os.Build;
 public class OreoNotification extends ContextWrapper {
 
     private static final String CHANNEL_ID = "com.ourdia.bomchat";
-    private static final String CHANNEL_NAME = "Bomchat";
+    private static final String CHANNEL_NAME = "bom";
 
     private NotificationManager notificationManager;
 
